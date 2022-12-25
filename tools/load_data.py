@@ -1,6 +1,7 @@
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
+import glob
 
 
 class GSheets:
@@ -31,3 +32,24 @@ class GSheets:
             ws_records = ws.get_all_records()
             df = pd.DataFrame(ws_records)
             df.to_csv(f'data/sheets/{ws_name}.csv', index=False)
+
+
+class Local:
+    def __init__(self):
+        self.raw_data = None
+
+    def load_sheets(self):
+        """
+        Load all csv file in a pandas dataframe from data folder, and put it in dict with file name as key and dataframe as value
+        :return: dict.
+        """
+        list_data_all_path = glob.glob("data/sheets/*.csv")
+        data_raw_dict = {}
+
+        for data_all_path in list_data_all_path:
+            df = pd.read_csv(data_all_path)
+            data_all_path = data_all_path.replace('\\', '/')
+            file_name = data_all_path.split('/')[-1]
+            file_name_without_extension = file_name.split('.')[0]
+            data_raw_dict[f'df_{file_name_without_extension}'] = df
+        self.raw_data = data_raw_dict
